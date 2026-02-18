@@ -100,6 +100,10 @@ func (lo *localConn) getFirstByte() {
 					if *verbose {
 						logger.Printf("%s %5d:  *            %s ESNI", lo.mode, lo.total, m.verString)
 					}
+				} else if m.ech {
+					if *verbose {
+						logger.Printf("%s %5d:  *            %s ECH", lo.mode, lo.total, m.verString)
+					}
 				} else {
 					if *verbose {
 						logger.Printf("%s %5d:  *            %s Client Hello", lo.mode, lo.total, m.verString)

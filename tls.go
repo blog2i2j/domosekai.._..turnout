@@ -99,6 +99,7 @@ const (
 	extensionKeyShare                uint16 = 51
 	extensionRenegotiationInfo       uint16 = 0xff01
 	extensionEncryptedServerName     uint16 = 0xffce
+	extensionEncryptedClientHello    uint16 = 0xfe0d
 )
 
 // TLS signaling cipher suite values
@@ -154,6 +155,7 @@ type clientHelloMsg struct {
 	esni                         bool
 	earlyData                    bool
 	verString                    string
+	ech                          bool
 }
 
 func (m *clientHelloMsg) unmarshal(data []byte) bool {
@@ -259,6 +261,9 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 			extData = nil
 		case extensionEarlyData:
 			m.earlyData = true
+			extData = nil
+		case extensionEncryptedClientHello:
+			m.ech = true
 			extData = nil
 		default:
 			// Ignore unknown extensions.
@@ -395,6 +400,7 @@ const (
 	alertUnknownPSKIdentity           alert = 115
 	alertCertificateRequired          alert = 116
 	alertNoApplicationProtocol        alert = 120
+	alertECHRequired                  alert = 121
 )
 
 var alertText = map[alert]string{
@@ -431,4 +437,5 @@ var alertText = map[alert]string{
 	alertUnknownPSKIdentity:           "unknown PSK identity",
 	alertCertificateRequired:          "certificate required",
 	alertNoApplicationProtocol:        "no application protocol",
+	alertECHRequired:                  "encrypted client hello required",
 }
