@@ -712,25 +712,16 @@ func (re *remoteConn) doRemote(lo localConn, out *net.Conn, network string, time
 		*out, err = dialer.Dial(network, dp)
 	}*/
 	if err != nil {
-		if strings.Contains(err.Error(), "time") {
+		if strings.Contains(err.Error(), "time") || strings.Contains(err.Error(), "host unreachable") {
 			if *verbose {
 				logger.Printf("%s %5d: SYN         %d Initial connection timeout", lo.mode, lo.total, route)
 			}
-		} else if strings.Contains(err.Error(), "refused") || strings.Contains(err.Error(), "reset") {
+		} else if strings.Contains(err.Error(), "refused") || strings.Contains(err.Error(), "reset") || strings.Contains(err.Error(), "EOF") {
 			// Linux: "connect: connection refused"
 			// Windows: "connectex: No connection could be made because the target machine actively refused it."
 			if *verbose {
-				logger.Printf("%s %5d: RST         %d Initial connection reset", lo.mode, lo.total, route)
+				logger.Printf("%s %5d: FIN         %d Initial connection refused", lo.mode, lo.total, route)
 			}
-			/*if route == 1 && !re.ruleBased {
-				if ip := net.ParseIP(lo.dest); ip != nil && (lo.host == "" || *dnsOK) {
-					logger.Printf("%s %5d: ADD         %d TCP reset detected, %s %s port %s added to blocked list", lo.mode, lo.total, route, lo.host, ip, lo.dport)
-					blockedIPSet.add(ip, lo.dport)
-				} else if lo.host != "" {
-					logger.Printf("%s %5d: ADD         %d TCP reset detected, %s port %s added to blocked list", lo.mode, lo.total, route, lo.host, lo.dport)
-				}
-				blockedHostSet.add(lo.host, lo.dport)
-			}*/
 		} else if strings.Contains(err.Error(), "no such host") {
 			if *verbose {
 				logger.Printf("%s %5d: NXD         %d Domain lookup failed", lo.mode, lo.total, route)
